@@ -20,7 +20,6 @@ spring:
     format_sql: true # SQL문을 보여줄 때, 한 줄로 막 보여주는 게 아니라, 이쁘게 해서 보여주는 기능11231
 
 
-
 logging.level:
   org.hibernate.SQL: debug # 이렇게 하면,hibernate가 날리는 SQL문을 [콘솔창]이 아니라, [로그 파일]로 남길 수가 있다.
   #org.hibernate.type: trace # 이건 쿼리 파마미터(? 부분)에 어떤 데이터가 들어 갔는지 보여주는 옵션이다.
