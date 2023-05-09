@@ -17,7 +17,7 @@ spring:
   properties:
    hibernate:
     #show_sql: true #이 부분을 주석 처리한 이유는 아래의 loggig.level.org.hibernate.sql: debug에서 SQL문을 콘솔이 아니라 [로그 파일]로 남기기 위함이다.
-    format_sql: true # SQL문을 보여줄 때, 한 줄로 막 보여주는 게 아니라, 이쁘게 해서 보여주는 기능1123
+    format_sql: true # SQL문을 보여줄 때, 한 줄로 막 보여주는 게 아니라, 이쁘게 해서 보여주는 기능11231
 
 
 
