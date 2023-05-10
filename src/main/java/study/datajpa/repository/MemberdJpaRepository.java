@@ -50,6 +50,7 @@ public class MemberdJpaRepository {
         return Optional.ofNullable(member); // member 객체를 Optional 객체로 한 번 Wrapping한다.
     }
 
+
     //조회된 객체의 개수
     public Long count(){
 
@@ -57,5 +58,21 @@ public class MemberdJpaRepository {
                 .getSingleResult();
 
     }
+
+    // 순수 JPA로 [username]과 [age]라는 특정 비지니스의 [도메인 엔티티]를 가지고 쿼리 메서드([조회] 메서드)를 만든 것이다.
+    // -> Spring Data JPA는 [스프링 데이터]와 [스프링 데이터 JPA] 계층에서는 제공하지 않는 쿼리 메서드([조회] 메서드)를 순수 JPA보다
+    // 훨씬 더 간편하게 만들 수가 있다. ("쿼리 메서드" 게시물 참조)
+    public List<Member> findByusernameAndAgeGreaterThan(String username,int age){
+
+        return entityManager.createQuery("SELECT m FROM Member m WHERE m.username = :username AND m.age > :age")
+                .setParameter("username",username)
+                .setParameter("age",age)
+                .getResultList();
+
+    }
+
+
+
+
 
 }

@@ -70,4 +70,32 @@ class MemberdJpaRepositoryTest {
         long delete_count = repository.count();
         assertThat(delete_count).isEqualTo(0);
     }
+
+    @Test@Transactional
+    public void findByusernameAndAgeGreaterThan(){
+
+        Member member1 = new Member("member1", 19);
+        Member member2 = new Member("member1", 20);
+        Member member3 = new Member("member2", 21);
+        Member member4 = new Member("member3", 22);
+        Member member5 = new Member("member1", 23);
+        repository.save(member1);
+        repository.save(member2);
+        repository.save(member3);
+        repository.save(member4);
+        repository.save(member5);
+
+        List<Member> findMember = repository.findByusernameAndAgeGreaterThan("member1",20);
+
+        for (Member member : findMember) {
+            assertThat(member.getUsername()).isEqualTo("member1");
+            assertThat(member.getAge()).isGreaterThan(20);
+        }
+
+        assertThat(findMember.size()).isEqualTo(1);
+
+    }
+
+
+
 }
