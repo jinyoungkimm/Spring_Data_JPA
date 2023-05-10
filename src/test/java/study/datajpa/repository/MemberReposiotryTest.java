@@ -44,4 +44,13 @@ class MemberReposiotryTest {
 
     }
 
+    @Test
+    public void sss(){
+
+        Member member = new Member("123");
+
+        //member.toString() 호출!
+        System.out.println("member = " + member);
+    }
+
 }
