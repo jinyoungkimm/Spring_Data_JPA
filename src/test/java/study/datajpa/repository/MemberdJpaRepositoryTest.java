@@ -8,12 +8,14 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
 
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-
 @SpringBootTest
-@Transactional
+@Transactional(readOnly = true)
 class MemberdJpaRepositoryTest {
 
     @Autowired
@@ -21,6 +23,7 @@ class MemberdJpaRepositoryTest {
 
 
     @Test
+    @Transactional(readOnly = false)
     //@Rollback(value = false)
     public void testMember(){
 
@@ -39,8 +42,32 @@ class MemberdJpaRepositoryTest {
 
     }
 
+    @Test
+    @Transactional(readOnly = false)
+    @Rollback(value = false)
+    public void basicCRUD(){
+
+        Member member1 = new Member("member1");
+        Member member2 = new Member("member2");
+        repository.save(member1);
+        repository.save(member2);
+
+        Optional<Member> findMember1 = repository.findById(member1.getId());
+        Optional<Member> findMember2 = repository.findById(member2.getId());
+        //단일 조회 검증
+        assertThat(findMember1.get()).isEqualTo(member1);
+        assertThat(findMember2.get()).isEqualTo(member2);
 
 
+        //리스트 조회 검증
+        List<Member> all = repository.findAll();
+        assertThat(all.size()).isEqualTo(2);
 
+        //삭제 검증
+        repository.delete(member1);
+        repository.delete(member2);
 
+        long delete_count = repository.count();
+        assertThat(delete_count).isEqualTo(0);
+    }
 }
