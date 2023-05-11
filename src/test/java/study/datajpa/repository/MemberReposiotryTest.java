@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
+import study.datajpa.entity.Team;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +23,8 @@ class MemberReposiotryTest {
     @Autowired
     MemberReposiotry repository; // Spring Data JPA를 설정한 인터페이스!(구현체는 Spring Data JPA가 자동 생성해서 주입)
 
-
+    @Autowired
+    TeamRepository teamRepository;
     @Test
     public void testMember(){
 
@@ -128,6 +131,43 @@ class MemberReposiotryTest {
         assertThat(member).isEqualTo(member1);
 
     }
+
+    @Test@Transactional
+    public void findUsernameList() {
+
+        Member member1 = new Member("member1", 10);
+        Member member2 = new Member("member2", 20);
+        repository.save(member1);
+        repository.save(member2);
+
+        // [Spring Data JPA]가 제공하는 @Query로 쿼리 메서드 [자동] 생성!!!
+        List<String> findMember = repository.findUsernameList();
+
+        for (String s : findMember) {
+            System.out.println("s = " + s);
+        }
+
+    }
+
+    @Test@Transactional
+    public void findMemberDto() {
+
+        Team team = new Team("teamA");
+        teamRepository.save(team);
+
+        Member member = new Member("member1", 10);
+        member.setTeam(team);
+        repository.save(member);
+
+        // [Spring Data JPA]가 제공하는 @Query로 쿼리 메서드 [자동] 생성!!!
+        List<MemberDto> findMember = repository.findMemberDto();
+        for (MemberDto memberDto : findMember) {
+            System.out.println("memberDto = " + memberDto); // lombok이 toString()을 자동으로 오버라이딩해주었음.
+        }
+
+
+    }
+
 
 
 }
