@@ -20,6 +20,10 @@ public interface MemberReposiotry extends JpaRepository<Member,Long> {
    // @Query(name = "Member.findByUsername") // Spring Data JPA가 JPQL문을 [자동]으로 작성을 해준다.
     List<Member> findByUsername(@Param("username") String usernmae); // 메서드 명은 아무거나로 지어도 됨.
 
-
+    // JPQL을 Member 클래스의 @NamedQuery가 아닌 [쿼리] 메서드(Repository 계층)위에 바로 적어 놓을 수가 있다.
+    // -> [정적]인 JPQL이므로, 애플리케이션 로딩 시점(컴파일 타임)에 쿼리문 에러 체크를 할 수가 있고,
+    // Member 클래스와 MemberRepsitory 인터페이스를 왔다 갔다가 하면서 개발하지 않아도 된다.
+    @Query("SELECT m FROM Member m WHERE m.username = :username AND m.age = :age")
+    List<Member> findUser(@Param("username") String username, @Param("age") int age);
 
 }

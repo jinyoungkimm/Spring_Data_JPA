@@ -111,7 +111,21 @@ class MemberReposiotryTest {
         Member member = findMember.get(0);
         assertThat(member).isEqualTo(member1);
 
+    }
 
+    @Test@Transactional
+    public void testQuery() {
+
+        Member member1 = new Member("member1", 10);
+        Member member2 = new Member("member2", 20);
+        repository.save(member1);
+        repository.save(member2);
+
+        // [Spring Data JPA]가 제공하는 @Query로 쿼리 메서드 [자동] 생성!!!
+        List<Member> findMember = repository.findUser("member1",10);
+
+        Member member = findMember.get(0);
+        assertThat(member).isEqualTo(member1);
 
     }
 
