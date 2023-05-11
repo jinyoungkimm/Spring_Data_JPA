@@ -193,7 +193,7 @@ class MemberReposiotryTest {
         repository.save(member2);
 
         // Spring Data JPA은 컬렉션을 반환 타입으로 지원!
-        List<Member> findMembers = repository.findListByUsernameS("member1");
+        List<Member> findMembers = repository.findListByUsername("member1");
         //만약, "member1"이 DB에 없다면, List로 NULL이 반환이 될까??
         //->NOPE!!! [빈 컬렉션], List 같은 경우, new ArrayList<>()를 반환한다.
         // 고로 if( findMembers == null ), else... 뭐 이런 코드는 안 짜도 된다.

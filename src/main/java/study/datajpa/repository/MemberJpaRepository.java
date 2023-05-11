@@ -78,4 +78,28 @@ public class MemberJpaRepository {
                 .getResultList();
     }
 
+    // [페이징]과 [정렬]을 먼저 순수 JPA로 구현을 해보자!!!
+    // 나이를 기준으로 [조회]를 하고, ORDER BY로 [정렬](내림차순)한다.
+    // 그리고 setFirstResult(), setMaxResult()로 [페이징]을 하여, [부분적]인 튜플들을 들고 온다.
+    public List<Member> findByPage(int age,int offset,int limit){
+        return  entityManager.createQuery("SELECT m FROM Member m WHERE m.age = :age" +
+                        " ORDER BY m.username desc",Member.class)// [내림차순]으로 [정렬]
+                .setParameter("age", age)
+                .setFirstResult(offset) // offset번째부터
+                .setMaxResults(limit) // limit번째까지를 [페이징] 해줘!
+                .getResultList();
+
+    }
+
+    // findByPage() 조회 결과, 튜플의 총 개수!
+    public long totalCount(int age){
+
+        return entityManager.createQuery("SELECT COUNT(m) FROM Member m WHERE m.age = :age"
+               ,Long.class)
+                .setParameter("age",age)
+                .getSingleResult();
+
+    }
+
+
 }

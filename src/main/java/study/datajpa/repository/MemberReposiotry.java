@@ -37,7 +37,7 @@ public interface MemberReposiotry extends JpaRepository<Member,Long> {
 
     //Spring Data JPA는 다양한 반환값 타입을 제공한다.
     //1] 반환 타입 : 컬렉션
-    List<Member> findListByUsernameS(String username);
+    List<Member> findListByUsername(String username);
 
     // 2] 반환 타입 : 단건
     Member findMemberByUsername(String username);

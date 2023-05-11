@@ -111,5 +111,25 @@ class MemberJpaRepositoryTest {
 
     }
 
+    @Test@Transactional
+    public void pagin(){
+
+        repository.save(new Member("member1",10));
+        repository.save(new Member("member2",10));
+        repository.save(new Member("member3",10));
+        repository.save(new Member("member4",10));
+        repository.save(new Member("member5",10));
+
+        int age =10;
+        int offset = 1;
+        int limit = 3;
+        List<Member> findPaging = repository.findByPage(age, offset, limit);
+        long totalCount = repository.totalCount(age);
+
+        assertThat(findPaging.size()).isEqualTo(3);
+        assertThat(totalCount).isEqualTo(5);
+
+    }
+
 
 }
