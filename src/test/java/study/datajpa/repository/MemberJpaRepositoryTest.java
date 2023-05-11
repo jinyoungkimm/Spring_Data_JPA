@@ -1,10 +1,8 @@
 package study.datajpa.repository;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
 
@@ -12,14 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Transactional(readOnly = true)
-class MemberdJpaRepositoryTest {
+//@Transactional(readOnly = true)
+class MemberJpaRepositoryTest {
 
     @Autowired
-    private MemberdJpaRepository repository;
+    private MemberJpaRepository repository;
 
 
     @Test
@@ -44,7 +41,7 @@ class MemberdJpaRepositoryTest {
 
     @Test
     @Transactional(readOnly = false)
-    @Rollback(value = false)
+    //@Rollback(value = false)
     public void basicCRUD(){
 
         Member member1 = new Member("member1");
@@ -96,6 +93,23 @@ class MemberdJpaRepositoryTest {
 
     }
 
+    @Test@Transactional
+    public void testNamedQuery() {
+
+        Member member1 = new Member("member1", 10);
+        Member member2 = new Member("member2", 20);
+        repository.save(member1);
+        repository.save(member2);
+
+        List<Member> findMember = repository.findByUsername("member1");
+
+
+        Member member = findMember.get(0);
+        assertThat(member).isEqualTo(member1);
+
+
+
+    }
 
 
 }

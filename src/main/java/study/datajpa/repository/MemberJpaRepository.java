@@ -1,7 +1,7 @@
 package study.datajpa.repository;
 
-
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -12,10 +12,10 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class MemberdJpaRepository {
+public class MemberJpaRepository {
 
-    @Autowired
     private final EntityManager entityManager;
+
 
     public Member save(Member member){
 
@@ -71,8 +71,11 @@ public class MemberdJpaRepository {
 
     }
 
-
-
-
+    public List<Member> findByUsername(String username){
+        // createQuery x -> createNamedQuery o
+       return entityManager.createNamedQuery("Member.findByUsername",Member.class)
+                .setParameter("username",username)
+                .getResultList();
+    }
 
 }

@@ -13,7 +13,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-
 @SpringBootTest
 @Transactional(readOnly = true)
 @Rollback(value = false)
@@ -36,12 +35,10 @@ class MemberReposiotryTest {
         // -> id로 객체가 조회되지 않을 수도 있으니깐!!!
         Optional<Member> findMember = repository.findById(savedMember.getId());
 
-
         //then
         assertThat(findMember.get().getUsername()).isEqualTo(savedMember.getUsername());
         assertThat(findMember.get().getId()).isEqualTo(savedMember.getId());
         assertThat(findMember.get()).isEqualTo(savedMember);
-
 
     }
 
@@ -98,5 +95,25 @@ class MemberReposiotryTest {
         assertThat(findMember.size()).isEqualTo(1);
 
     }
+
+    @Test@Transactional
+    public void testNamedQuery() {
+
+        Member member1 = new Member("member1", 10);
+        Member member2 = new Member("member2", 20);
+        repository.save(member1);
+        repository.save(member2);
+
+        // [Spring Data JPA]가 제공하는 @Query로 쿼리 메서드 [자동] 생성!!!
+        List<Member> findMember = repository.findByUsername("member1");
+
+
+        Member member = findMember.get(0);
+        assertThat(member).isEqualTo(member1);
+
+
+
+    }
+
 
 }

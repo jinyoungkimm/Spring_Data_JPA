@@ -5,9 +5,13 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@NamedQuery(
+        name="Member.findByUsername",
+        query="select m from Member m where m.username = :username")
 @Getter@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자를 protected로 자동 생성해준다.
 @ToString(of = {"id", "username", "age"})
+
 public class Member {
 
     @Id@GeneratedValue

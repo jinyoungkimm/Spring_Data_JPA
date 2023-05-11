@@ -2,6 +2,8 @@ package study.datajpa.repository;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import study.datajpa.entity.Member;
 
 import java.util.List;
@@ -14,5 +16,10 @@ public interface MemberReposiotry extends JpaRepository<Member,Long> {
     // [username]과 [age Greater Than]은 SELECT문의 WHERE절에 Select Condition으로 들어 가며
     // 매개변수 (username)과 (age)는 바인딩돼서 SQL문이 만들어 진다.
     List<Member> findByusernameAndAgeGreaterThan(String username,int age);
+
+   // @Query(name = "Member.findByUsername") // Spring Data JPA가 JPQL문을 [자동]으로 작성을 해준다.
+    List<Member> findByUsername(@Param("username") String usernmae); // 메서드 명은 아무거나로 지어도 됨.
+
+
 
 }
