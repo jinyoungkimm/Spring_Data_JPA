@@ -131,5 +131,21 @@ class MemberJpaRepositoryTest {
 
     }
 
+    @Test@Transactional
+    public void bulkUpdate(){
+
+        repository.save(new Member("member1",10));
+        repository.save(new Member("member2",19));
+        repository.save(new Member("member3",20));
+        repository.save(new Member("member4",21));
+        repository.save(new Member("member5",40));
+
+
+        int updated_row = repository.bulkAgePlus(20);// 20살 이상인 사람의 나이를 +1만큼 증가!
+
+        assertThat(updated_row).isEqualTo(3);
+
+    }
+
 
 }

@@ -1,5 +1,6 @@
 package study.datajpa.repository;
 
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +31,10 @@ class MemberReposiotryTest {
 
     @Autowired
     TeamRepository teamRepository;
+
+    @Autowired
+    EntityManager entityManager; // 같은 Transaction이면 같은 엔티티 매니저로 동작
+                                 // -> 혹시 Transaction이 생성될 때마다, 다른 엔티티 매니저가 할당되나???
     @Test
     public void testMember(){
 
@@ -368,6 +373,62 @@ class MemberReposiotryTest {
     }
 
 
+    @Test@Transactional
+    public void bulkUpdate(){
 
+        repository.save(new Member("member1",10));
+        repository.save(new Member("member2",19));
+        repository.save(new Member("member3",20));
+        repository.save(new Member("member4",21));
+        repository.save(new Member("member5",40));
+
+
+        int updated_row = repository.bulkAgePlus(20);// 20살 이상인 사람의 나이를 +1만큼 증가!
+        //entityManager.clear(); // 벌크 연산 시, 꼭 Context를 초기화시켜 줘야 데이터 불일치 같은 문제가 안 생긴다.
+
+
+        // Context가 clear()된 것은 아니기에, member5를 조회를 하면 +1이 반연되지 않은 40살이 조회된다.
+        // 그러나 DB에는 이미 41살로 업데이트가 완료가 됨 -> [데이터 불일치] 문제
+        // JPA의 AUTO COMMIT 전략 중 하나로, ExecuteUpdate()처럼 즉시, 쿼리문이 날라가는 경우
+        // -> JPA가 먼저 Context에 있는 모든 sql문을 flush()를 해주고, 그 다음 update문을 날리게 된다.
+        List<Member> member5 = repository.findByUsername("member5");
+        Member member = member5.get(0);
+        System.out.println("member = " + member);  // 40살이 출력됨.
+
+
+        assertThat(updated_row).isEqualTo(3);
+
+    }
+
+    @Test@Transactional
+    public void findMemberLazy() throws Exception {
+
+
+        //given
+
+        //member1 -> teamA
+        //member2 -> teamB
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        repository.save(new Member("member1", 10, teamA));
+        repository.save(new Member("member2", 20, teamB));
+
+        entityManager.flush();
+        entityManager.clear();
+
+
+        //when
+        List<Member> members = repository.findAll(); // @EntityGraph(attributespath = {"team}으로 (n+1) 문제 해결!
+
+        //then
+        for (Member member : members) {
+            member.getTeam().getName();
+        }
+
+
+    }
 
 }

@@ -102,4 +102,14 @@ public class MemberJpaRepository {
     }
 
 
+    //일단, 먼저 순수 JPA로 벌크 연산하는 메서드를 작성해보고, 나중에 Spring Data JPA로 더 편하게 작성을 해보자.
+    public int bulkAgePlus(int age){
+
+        return entityManager.createQuery("UPDATE Member m set m.age = m.age + 1" +
+
+                        " WHERE m.age >= :age") // selection condition
+                .setParameter("age",age)
+                .executeUpdate(); // 업데이트된 튜플의 개수를 반환!
+    }
+
 }

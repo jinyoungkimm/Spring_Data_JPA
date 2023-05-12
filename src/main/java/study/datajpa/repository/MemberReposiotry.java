@@ -1,10 +1,13 @@
 package study.datajpa.repository;
 
 
+import jakarta.persistence.Entity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
@@ -66,4 +69,38 @@ public interface MemberReposiotry extends JpaRepository<Member,Long> {
                                                                     // Member Table 하나만을 가지고, totalCount를 계산한다. 결과는 똑같이 나온다.
                                                                     // 실행해서 sql문 확인해봐라(countQuery가 있고, 없고의 SQL문 차이 확인)
        Page<Member> findtotalCountByAge(int age, Pageable pageable);
+
+
+     //이제는 순수 JPA가 아닌, Spring Data JPA 방식으로 벌크 연산을 구현!
+     @Modifying(clearAutomatically = true) // Spring Data JPA는 이게 없으면, getResultList()나 getResultSingle()을 호출해 버림
+     // @Modifying이 있어야, executeUpdate()가 호출됨.
+     @Query("UPDATE Member m set m.age = m.age + 1 WHERE m.age >= :age")
+     public int bulkAgePlus(@Param("age") int age);
+
+
+     //Spring Data JPA로 Fetch Join 구현 1
+     @Query("select m from Member m left join fetch m.team")
+     List<Member> findMemberFetchJoin();
+     //이 방법만으로도 충분히 fetch join을 간편하게 구현이 가능하나,
+     //Spring Data JPA는 [@EntityGraph]를 이용하여, 기존과 같이 쿼리 메서드 명으로 fetch join을 구현하는 기능을 지원한다.
+
+     //Spring Data JPA로 Fetch Join 구현 2
+     @EntityGraph(attributePaths = {"team"} ) // Member -> Team ( 다 : 1 && 단방향 ) 관계이며, Member가 연관 관계의 주인이다.
+     @Override // JpaRepository 공통 인터페이스에는 이미 findAll()이 있으므로, 쿼리 메서드 기능을 이용하기 위해서는 오버라이딩을 해야 한다.
+     List<Member> findAll(); // Member를 조회할 때, (N+1) 문제를  @EntityGraph(attributePaths = {"team"} )이 해결!!!
+     //attributePaths = {"team"}는 Member를 조회할 때, Member와 연관 관계에 있는 엔티티 중 어떤 엔티티를 함께 fetch join 해올것인지를 지정
+
+
+      //Spring Data JPA로 Fetch Join 구현 3
+      @EntityGraph("Member.all")
+      @Query("select m from Member m")
+      List<Member> findMemberEntityGraph(); // 참고로, 이 메서드 명은 Spring Data JPA의 쿼리 메서드의 형식을 지키고 있지 않기에 쿼리 메서드 기능은 사용 X
+
+      //Spring Data JPA로 Fetch Join 구현 4
+      @EntityGraph(attributePaths = {"team"})
+      List<Member> findEntityGraphByUsername(@Param("username") String username); //이건 쿼리 메서드 기능을 사용하고 있다.
+
+
+
+
 }
