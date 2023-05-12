@@ -3,6 +3,10 @@ package study.datajpa.repository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -220,6 +224,150 @@ class MemberReposiotryTest {
 
 
     }
+
+    @Test@Transactional
+    public void pagin(){
+
+        /**
+         *  1. Page 사용 예시
+         */
+
+        /*repository.save(new Member("member1",10));
+        repository.save(new Member("member2",10));
+        repository.save(new Member("member3",10));
+        repository.save(new Member("member4",10));
+        repository.save(new Member("member5",10));
+
+        int age =10;
+
+        // PageRequest는 인터페이스인 Pageable의 구현체!!!
+        // JPA는 첫 페이지가 1부터 시작, Spring Data JPA는 첫 페이지가 0부터 시작!!(주의!!)
+        // [PageRequest]는 [page]인터페이스의 구현체!!!
+        PageRequest pageRequest = PageRequest.of(0,3, Sort.by(Sort.Direction.DESC,"username"));
+
+
+        // 쿼리 메서드용 SQL문 1번, totalCount용 SQL문 1번 : 총 2번의 쿼리리
+       Page<Member> page = repository.findByAge(age, pageRequest); // findByAge()를 JPQL로 구현하지 않아도, 자동으로 생성해줌
+
+
+        //위 코드에서 페이징 처리된 객체(3개)를 반환한다.
+        List<Member> content = page.getContent();
+
+        for (Member member : content) {
+            System.out.println("member = " + member); //@ToString()이 toString()을 자동으로 오버라이딩해 줬음!!!
+        }
+
+        long totalCount = page.getTotalElements(); // totalCount 반환!
+        System.out.println("totalCount = " + totalCount);
+
+        assertThat(content.size()).isEqualTo(3);
+        assertThat(page.getTotalElements()).isEqualTo(5);
+
+        assertThat(page.getNumber()).isEqualTo(0);
+
+         assertThat(page.isFirst()).isTrue();
+         assertThat(page.hasNext()).isTrue();*/
+
+        /**
+         * 2. Slice 사용 예시 : 이건 [페이징] 기능을 하는 것이 전혀 아니다.
+         * -> 다른 곳에서 [페이징] SQL문을 날린 후, 1개의 튜플들을 더 들고 오는 것에 불과하다.
+         */
+
+       /* repository.save(new Member("member1",10));
+        repository.save(new Member("member2",10));
+        repository.save(new Member("member3",10));
+        repository.save(new Member("member4",10));
+        repository.save(new Member("member5",10));
+
+        int age =10;
+
+        // [페이징] 요청은 여기서 일어남.
+        PageRequest pageRequest = PageRequest.of(0,3, Sort.by(Sort.Direction.DESC,"username"));
+
+        // 참고로, Slice 클래스는 PageRequest 클래스보다 더 상위(부모 or 조상 클래스)이기에, findPageByAge()의 반환형이
+        // Page(정확히는 PageRequest)여도 업캐스팅돼서, 받을 수는 있다.
+        // 내부적으로 limit [ + 1 ]을 하여 1개의 튜플을 추가적으로 더 들고 온다.
+        Slice<Member> page = repository.findPageByAge(age, pageRequest); // findPageByAge()를 JPQL로 구현하지 않아도, 자동으로 생성해줌
+
+        List<Member> content = page.getContent();
+
+        for (Member member : content) {
+            System.out.println("member = " + member); //@ToString()이 toString()을 자동으로 오버라이딩해 줬음!!!
+        }
+
+    //    long totalCount = page.getTotalElements();  Slice에는 이런 기능이 없다.
+    //    System.out.println("totalCount = " + totalCount);
+
+        assertThat(content.size()).isEqualTo(3);
+
+      //assertThat(page.getTotalElements()).isEqualTo(5); Slice에는 이런 기능이 없다.
+
+        assertThat(page.getNumber()).isEqualTo(0);
+
+        //assertThat(page.getTotalPages()).isEqualTo(2); Slice에는 이런 기능이 없다.
+
+        // 총 2개의 페이지가 반환된다(page 0, page 1)
+        assertThat(page.isFirst()).isTrue();
+        assertThat(page.hasNext()).isTrue();
+*/
+        /**
+         *  Slice가 사용되는 예
+         *  -> 모바일 디바이스에서 보면 아래로 쭉 스크롤을 하다가, [더보기]란이 있다.
+         *  이거의 원리는 처음에 1개의 페이지를 보여주고, Slice가 만약 DB에 1개의 TUPLE이 추가로 남아 있으면 그것을 들고 온다.
+         *  그렇게 추가의 튜플이 있으면, [더보기]란을 띄워주고, 없으면, 안 띄워 준다.
+         *  -> 만약 Page로 했는데, totalCount가 너무 많으면, Slice 방식을 이용하여 최적화하는 방법도 있다.
+         */
+
+
+
+        repository.save(new Member("member1",10));
+        repository.save(new Member("member2",10));
+        repository.save(new Member("member3",10));
+        repository.save(new Member("member4",10));
+        repository.save(new Member("member5",10));
+
+        int age =10;
+
+
+        PageRequest pageRequest = PageRequest.of(0,3, Sort.by(Sort.Direction.DESC,"username"));
+
+
+        // 쿼리 메서드용 SQL문 1번, totalCount용 SQL문 1번 : 총 2번의 쿼리문 날림
+        // Page는 outer Join을 사용하여 totalCount를 계산한다.
+        // 그러나 만약 table이 100개 라면 수많은 join이 일어나면서 성능에 문제가 생긴다.
+        // findPageByAge()를 @Query(countQuERY = "SELECT COUNT() ~~ "으로 JOIN 연산 없이 최적화하였다.
+        // 실행 결과를 확인해라(게시물에서도 확인 가능)
+        Page<Member> page = repository.findtotalCountByAge(age, pageRequest); // findByAge()를 JPQL로 구현하지 않아도, 자동으로 생성해줌
+
+        // [페이징을 유지하면서] 손쉽게 Dto로 변환하기 (feat. map() )
+        Page<MemberDto> map = page.map(member -> new MemberDto(member.getId(), member.getUsername(), null));
+        // 만약 API 호출 결과를 페이징을 유지하면서 반환해야 한다면, map()을 사용해서 손쉽게 Dto로 변환해서 반환하면 된다.
+        // (실무 꿀팁이라고 하심)
+
+
+        List<Member> content = page.getContent();
+
+        for (Member member : content) {
+            System.out.println("member = " + member); //@ToString()이 toString()을 자동으로 오버라이딩해 줬음!!!
+        }
+
+        long totalCount = page.getTotalElements(); // totalCount 반환!
+
+        System.out.println("totalCount = " + totalCount);
+
+        assertThat(content.size()).isEqualTo(3);
+
+        assertThat(page.getTotalElements()).isEqualTo(5);
+
+        assertThat(page.getNumber()).isEqualTo(0);
+
+        // 총 2개의 페이지가 반환된다(page 0, page 1)
+        assertThat(page.isFirst()).isTrue();
+        assertThat(page.hasNext()).isTrue();
+
+    }
+
+
 
 
 }

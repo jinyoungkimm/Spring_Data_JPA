@@ -1,6 +1,9 @@
 package study.datajpa.repository;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -46,5 +49,21 @@ public interface MemberReposiotry extends JpaRepository<Member,Long> {
     Optional<Member> findOptionalByUsername(String username);
 
 
+    //이제는 Spring Data JPA로 [페이징]과 [정렬]을 구현해볼거다.
+    // 1] Page 인터페이스 : 쿼리용 SQL문 1번, totalCount 쿼리용 SQL문 1번 : 총 2번의 쿼리 발생(실행해서 SQL문 확인!게시물에서 참조)
+    Page<Member> findPageByAge(int age, Pageable pageable); // 쿼리 메서드의 이름으로 Spring Data JPA가 JPQL를 만들어 준다.
 
+    // 2] Slice 인터페이스
+     Slice<Member> findSliceByAge(int age, Pageable pageable);
+
+     //  totalCount 계산은 부하가 크다. 왜냐하면, DB Table 전~체를 다 조회해야 하기 때문인데, 상황에 따라서 totalCount 계산을 최적화 해줘야 한다.
+     // 우리가 쿼리 문을 날리게 되면, 대게의 경우, JOIN연산이 일어난다.
+     // 여기서는 Member -> Team( 다 : 1 )과 left Outer Join으로 예시를 들겠다.
+     // 만약, 2개의 Table 사이에 left outer join이 일어나게 된다면, 그 결과의 table의 totalcount나 member table의 total count나 값이 같다.
+     // -> 이러한 점들을 이용해서 Spring Data JPA는 @Query( countQuery = " select ~~~ " ) 식으로 totalcount용 쿼리를 따로 짤 수 있게 해놓음
+     @Query(value = "SELECT m FROM Member m LEFT JOIN m.team t",  // 원래는 여기에서 totalCount 쿼리 계산도 같이 일어남!
+             countQuery = "SELECT COUNT(m.username) FROM Member m") // 이 부분에서 left outer Join으로 totalCount를 계산하지 않고,
+                                                                    // Member Table 하나만을 가지고, totalCount를 계산한다. 결과는 똑같이 나온다.
+                                                                    // 실행해서 sql문 확인해봐라(countQuery가 있고, 없고의 SQL문 차이 확인)
+       Page<Member> findtotalCountByAge(int age, Pageable pageable);
 }
