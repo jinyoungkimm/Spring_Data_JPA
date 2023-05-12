@@ -424,11 +424,65 @@ class MemberReposiotryTest {
         List<Member> members = repository.findAll(); // @EntityGraph(attributespath = {"team}으로 (n+1) 문제 해결!
 
         //then
-        for (Member member : members) {
+        for (Member member : members)
             member.getTeam().getName();
-        }
+    }
 
+
+    @Test@Transactional
+    public void queryHint(){
+
+        // hint 적용 전
+
+        /*Member member = repository.save(new Member("member1", 10));
+        entityManager.flush();
+        entityManager.clear();
+
+
+        Optional<Member> optional = repository.findById(member.getId()); // Context를 clear()하였으므로, DB에서 조회를 한다.
+        Member findMember = optional.get();
+        // "member1" -> "member2"로 변경(dirty checking 기법으로 변경)
+        findMember.setUsername("member2");
+        entityManager.flush();
+
+        // member2로 출력됨.
+        System.out.println("findMember = " + findMember);*/
+
+
+        // hint 적용 후
+
+
+        Member member = repository.save(new Member("member1", 10));
+        entityManager.flush();
+        entityManager.clear();
+
+        // DB에서 조회한 뒤, Context에 저장될 때, 원본 객체 딱 1개만 저장이 된다.
+        Member findMember = repository.findReadOnlyByUsername(member.getUsername());
+        findMember.setUsername("member2");
+        entityManager.flush();
+    }
+
+
+    @Test@Transactional
+    public void queryLock(){
+
+        Member member = repository.save(new Member("member1", 10));
+        entityManager.flush();
+        entityManager.clear();
+
+        List<Member> findMember = repository.findLockByUsername("member1");
 
     }
+
+    @Test@Transactional
+    public void callCustom(){
+
+        List<Member> memberCustom = repository.findMemberCustom();
+
+    }
+
+
+
+
 
 }

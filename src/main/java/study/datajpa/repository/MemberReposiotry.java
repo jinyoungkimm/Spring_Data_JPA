@@ -2,13 +2,12 @@ package study.datajpa.repository;
 
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
@@ -16,8 +15,11 @@ import study.datajpa.entity.Member;
 import java.util.List;
 import java.util.Optional;
 
-// Member [엔티티]에 대한 [Spring Data JPA] 등록!!!
-public interface MemberReposiotry extends JpaRepository<Member,Long> {
+
+// MemberRepositoryCustom이라는 [사용자 정의 인터페이스]를 상속받게 하면,
+// Spring Data JPA가 [사용자 정의 인터페이스] 메서드를 클라이언트에서 호출하면, 제대로 동작하게 알아서 해준다.
+// (사용자 정의 인터페이스는 JAVA가 실행시켜 주는 것이 아닌, Spring Data JPA가 동작을 시켜주는 것이다.)
+public interface MemberReposiotry extends JpaRepository<Member,Long>, MemberRepositoryCustom {
 
 
     List<Member> findByusernameAndAgeGreaterThan(String username,int age);
@@ -101,6 +103,15 @@ public interface MemberReposiotry extends JpaRepository<Member,Long> {
       List<Member> findEntityGraphByUsername(@Param("username") String username); //이건 쿼리 메서드 기능을 사용하고 있다.
 
 
+     // @QueryHint[s]는 Spring Data JPA가 제공하는 에노테이션이고,
+     // @QueryHint(name = "asdfads...)는 [하이버네이트]가 제공하는 에노테이션이다.
+      @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
+      Member findReadOnlyByUsername(String username);
 
 
+      // @Lock : Spring Data JPA에서 제공하는 에노테이션
+      // LockModeType.PESSIMISTIC_WRITE : JPA에서 제공하는 enum 타입입
+
+      @Lock(LockModeType.PESSIMISTIC_WRITE)
+      List<Member> findLockByUsername(String username);
 }
