@@ -18,4 +18,9 @@ public class MemberDto {
         this.username = username;
         this.teamName = teamName;
     }
+
+
+
+
+
 }

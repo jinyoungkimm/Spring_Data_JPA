@@ -2,12 +2,17 @@ package study.datajpa.controller;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.repository.MemberReposiotry;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -38,11 +43,31 @@ public class MemberController {
 
     }
 
+
+    // page의 default값( [ Local Setting ] )
+    // sort는 default값 오름차순(asc)이기에 적어 주지 않아도 된다.
+    // 내리차순이면 [명시적]으로 desc를 적어 줘야 한다.
+    @GetMapping("/members")
+    public Page<MemberDto> list(@PageableDefault(size=5, sort="username") Pageable pageable){ // Page, Pagealbe 모두 [인터페이스]이다.
+
+        Page<Member> page = memberReposiotry.findAll(pageable);
+        //손쉽게 Page를 DTO로 변환하는 꿀팁(PAGE.map()이용)
+        Page<MemberDto> map = page.map(member -> new MemberDto(member.getId(),  member.getUsername(),null));
+        return map;
+
+    }
+
+
+
+
     @PostConstruct
     public void init(){
 
-        Member member22222 = new Member("member22222");
-        memberReposiotry.save(member22222);
+        for(int i =0 ; i < 100; i++){
+
+            memberReposiotry.save(new Member("user"+i,i));
+
+        }
 
     }
 
