@@ -12,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자를 protected로 자동 생성해준다.
 @ToString(of = {"id", "username", "age"})
 
-public class Member {
+public class Member extends BaseEntity{ // 등록일,수정일 정보가 필요하므로, JpaBaseEntity를 상속 받았다.
 
     @Id@GeneratedValue
     @Column(name = "member_id")

@@ -10,7 +10,7 @@ import java.util.List;
 @Getter@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자를 Protected로 자동 생성
 @ToString(of = {"id", "name"})
-public class Team {
+public class Team extends BaseEntity { // 등록일, 수정일에 대한 정보가 필요하므로, JpaBaseEntity를 상속 받았다.
 
     @Id@GeneratedValue
     @Column(name = "team_id")
