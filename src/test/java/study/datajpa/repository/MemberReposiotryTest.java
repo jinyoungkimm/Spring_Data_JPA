@@ -4,16 +4,14 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 
+import java.io.BufferedReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -481,7 +479,65 @@ class MemberReposiotryTest {
 
     }
 
+    @Test@Transactional
+    public void queryByExample(){ // [Query by Example]
 
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+     // 사용 예시 1
+
+        /*
+        // 만약 ,"m1"인 객체를 찾고 싶다면? 보통의 경우, findByUsername("m1")으로 찾는다.
+        Member m3 = new Member("m1");
+
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withIgnorePaths("age"); // 검색 조건으로 "age" 속성은 제외!
+        // id는 Long 타입이고, null이면 자동으로 무시가 된다.
+        // 그러나, age는 기본 자료형(int)로 정의돼 있기에
+        // 기본적으로 0이 삽입이 되어서, 값이 있다고 판단을 해버린다.
+        // 고로, 의도적으로 이 값을 검색 조건에서 뺀다고 명시를 해줘야 한다.
+
+
+
+        // Spring Data JPA에서는 엔티티를 SELECTION CONDITION으로 쿼리를 해주는 기능이 있다.
+        Example<Member> example = Example.of(m3,matcher);// Query by Example 기술!!
+                                                          // [엔티티]를 쿼리(조회) 조건, 즉 Selection Condition으로 사용한다.
+
+
+        // 공통 인터페이서(JpaRepository는 QueryByExample이라는 인터페이스를 상속 받고 있고, 그 안에
+        // findAll(Example)이 선언돼 있다.
+        List<Member> result = repository.findAll(example);
+
+        assertThat(result.get(0).getUsername()).isEqualTo("m1");*/
+
+
+        // 사용 예시 2
+        // Query By Example의 문제점은 inner join으로만 select이 되고,
+        // outer join으로는 select이 안 된다는 점이다.(아래 코드를 실행해 보고, 쿼리문 확인)
+
+        Member member = new Member("m1");
+        Team team = new Team("teamA");
+        member.setTeam(team); // selection condition에 Member::username과 더불어 Team :: teamName도 추가함
+
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withIgnorePaths("age");
+
+        Example<Member> example = Example.of(member,matcher);
+
+        List<Member> result = repository.findAll(example);
+
+        assertThat(result.get(0).getUsername()).isEqualTo("m1");
+
+    }
 
 
 
