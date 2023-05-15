@@ -539,6 +539,26 @@ class MemberReposiotryTest {
 
     }
 
+    @Test@Transactional
+    public void projections(){
 
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        List<NestedClosedProjections> result = repository.findProByUsername("m1", NestedClosedProjections.class);
+        for (NestedClosedProjections nestedClosedProjections : result) {
+            System.out.println("nestedClosedProjections = " + nestedClosedProjections);
+        }
+
+
+    }
 
 }

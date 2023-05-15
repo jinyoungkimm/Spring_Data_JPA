@@ -114,4 +114,18 @@ public interface MemberReposiotry extends JpaRepository<Member,Long>, MemberRepo
 
       @Lock(LockModeType.PESSIMISTIC_WRITE)
       List<Member> findLockByUsername(String username);
+
+
+      // Projectino 기능 사용(반환형의 엔티티의 속성들이 projection의 대상이 돼서, 엔티티에 조회 결과가 삽입돼서 반환된다.)
+       List<UsernameOnly> findProjectionsByUsername(@Param("username") String username);
+
+       // Proxy 객체가 아닌, UsernameOnlyDto 엔티티로 반환!!
+      List<UsernameOnlyDto> findProjectByUsername(@Param("username") String username);
+
+
+      // Generic으로 해서, UsernameOnly으로 반환 받고 싶으면, UsernameOnly 타입을 매개변수로 넘기고,
+      // UsernameOnlyDto로 반환을 받고 싶으면, UsernameOnlyDto 타입을 매개변수로 넘기면 된다.
+      // -> 동적으로 반환받고 싶은 엔티티 타입을 정의할 수가 있다.
+      <T> List<T> findProByUsername(@Param("username") String username,Class<T> type);
+
 }
