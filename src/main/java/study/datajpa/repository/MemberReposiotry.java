@@ -128,4 +128,29 @@ public interface MemberReposiotry extends JpaRepository<Member,Long>, MemberRepo
       // -> 동적으로 반환받고 싶은 엔티티 타입을 정의할 수가 있다.
       <T> List<T> findProByUsername(@Param("username") String username,Class<T> type);
 
+
+
+      // Native Query : MyBatis 등을 사용하여 순수 SQL문을 작성하는 것이며, JPA가 지원함(당연히 Spring Data JPA도 지원)
+     // -> Native Query는 정~말 최후의 수단으로만 사용을 해야 한다.
+
+    @Query(value = "select * from member where username = ?",nativeQuery = true)
+    Member findByNativeQuery(String username);
+
+    // Native Query의 한계 1 : 지금 위 코드에서는 모든 필드를 Projectino하였다.
+    // 네이티브 쿼리를 사용을 하게 되면, 반환 타입에 맞는 엔티티에 맞게 Projection이 최적화 되지 않는다.
+    // 일단 모든 필드를 Projection의 대상으로 쿼리문을 작성하여, 쿼리문을 날린 뒤,
+    // 후작업으로 Member 엔티티에 삽입을 하게 된다.(최신 버전에서는 이 문제 극복! 아래에서 설명)
+
+
+
+  // DTO(Spring Data Interface Projcetion 지원)을 사용하면, 쿼리문을 날릴 때, 아래와 같이 Projection을 최적화하여서 필드값들을 들고 올 수가 있다.
+   @Query(value = "SELECT m.member_id as id, m.username, t.name as teamname" + // as를 사용하여, 꼭 MemberProjection 엔티티의 필드명과 맞춰줘야 한다.
+           " from member as m left outer join team t",                         // 참고로 순수 SQL문은 대소문자 구별 X
+           countQuery = "select count(*) from member" // JPQL의 경우, Page를 사용하면 자동으로 totalcount를 계산해서 반환을 하지만, 지금은 Native Query이기에 꼭 별도로
+           ,nativeQuery = true)                      // 개발자가 totalCount를 계산하는 순수 sql문을 짜줘야 한다.(Page가 아니면 안 해도 괜찮지만, Page로 설정이 돼어 있기에 꼭!!)
+   Page<MemberProjection> findByNativeProjection(Pageable pageable);
+   // 위 SQL문 같이 [정적] SQL문에 대해서는 위와 같이 필요한 Field만을 적어서, Projcetion을 최적화할 수가 있지만,
+   // [동적] SQL문의 경우, 이 최적화 기능을 사용할 수가 X.
+
+
 }

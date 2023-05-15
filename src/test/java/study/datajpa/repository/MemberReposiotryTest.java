@@ -32,9 +32,10 @@ class MemberReposiotryTest {
 
     @Autowired
     EntityManager entityManager; // 같은 Transaction이면 같은 엔티티 매니저로 동작
-                                 // -> 혹시 Transaction이 생성될 때마다, 다른 엔티티 매니저가 할당되나???
+
+    // -> 혹시 Transaction이 생성될 때마다, 다른 엔티티 매니저가 할당되나???
     @Test
-    public void testMember(){
+    public void testMember() {
 
         //givien
         Member member = new Member("memberA");
@@ -56,7 +57,7 @@ class MemberReposiotryTest {
     @Test
     @Transactional(readOnly = false)
     @Rollback(value = false)
-    public void basicCRUD(){
+    public void basicCRUD() {
 
         Member member1 = new Member("member1");
         Member member2 = new Member("member2");
@@ -82,8 +83,9 @@ class MemberReposiotryTest {
         assertThat(delete_count).isEqualTo(0);
     }
 
-    @Test@Transactional
-    public void findByusernameAndAgeGreaterThan(){
+    @Test
+    @Transactional
+    public void findByusernameAndAgeGreaterThan() {
 
         Member member1 = new Member("member1", 19);
         Member member2 = new Member("member1", 20);
@@ -96,7 +98,7 @@ class MemberReposiotryTest {
         repository.save(member4);
         repository.save(member5);
 
-        List<Member> findMember = repository.findByusernameAndAgeGreaterThan("member1",20);
+        List<Member> findMember = repository.findByusernameAndAgeGreaterThan("member1", 20);
 
         for (Member member : findMember) {
             assertThat(member.getUsername()).isEqualTo("member1");
@@ -107,7 +109,8 @@ class MemberReposiotryTest {
 
     }
 
-    @Test@Transactional
+    @Test
+    @Transactional
     public void testNamedQuery() {
 
         Member member1 = new Member("member1", 10);
@@ -124,7 +127,8 @@ class MemberReposiotryTest {
 
     }
 
-    @Test@Transactional
+    @Test
+    @Transactional
     public void testQuery() {
 
         Member member1 = new Member("member1", 10);
@@ -133,14 +137,15 @@ class MemberReposiotryTest {
         repository.save(member2);
 
         // [Spring Data JPA]가 제공하는 @Query로 쿼리 메서드 [자동] 생성!!!
-        List<Member> findMember = repository.findUser("member1",10);
+        List<Member> findMember = repository.findUser("member1", 10);
 
         Member member = findMember.get(0);
         assertThat(member).isEqualTo(member1);
 
     }
 
-    @Test@Transactional
+    @Test
+    @Transactional
     public void findUsernameList() {
 
         Member member1 = new Member("member1", 10);
@@ -157,7 +162,8 @@ class MemberReposiotryTest {
 
     }
 
-    @Test@Transactional
+    @Test
+    @Transactional
     public void findMemberDto() {
 
         Team team = new Team("teamA");
@@ -176,7 +182,8 @@ class MemberReposiotryTest {
 
     }
 
-    @Test@Transactional
+    @Test
+    @Transactional
     public void findByNames() {
 
         Member member1 = new Member("member1", 10);
@@ -185,13 +192,14 @@ class MemberReposiotryTest {
         repository.save(member2);
 
         // [Spring Data JPA]가 제공하는 @Query로 쿼리 메서드 [자동] 생성!!!
-        List<Member> findMember = repository.findByNames(Arrays.asList("member1","member2"));
+        List<Member> findMember = repository.findByNames(Arrays.asList("member1", "member2"));
         for (Member member : findMember) {
             System.out.println("member = " + member); // Member 클래스의 @ToString()에 의해 자동으로 오버라이딩됨.
         }
     }
 
-    @Test@Transactional
+    @Test
+    @Transactional
     public void returnTypes() {
 
         Member member1 = new Member("member1", 10);
@@ -228,8 +236,9 @@ class MemberReposiotryTest {
 
     }
 
-    @Test@Transactional
-    public void pagin(){
+    @Test
+    @Transactional
+    public void pagin() {
 
         /**
          *  1. Page 사용 예시
@@ -322,17 +331,16 @@ class MemberReposiotryTest {
          */
 
 
+        repository.save(new Member("member1", 10));
+        repository.save(new Member("member2", 10));
+        repository.save(new Member("member3", 10));
+        repository.save(new Member("member4", 10));
+        repository.save(new Member("member5", 10));
 
-        repository.save(new Member("member1",10));
-        repository.save(new Member("member2",10));
-        repository.save(new Member("member3",10));
-        repository.save(new Member("member4",10));
-        repository.save(new Member("member5",10));
-
-        int age =10;
+        int age = 10;
 
 
-        PageRequest pageRequest = PageRequest.of(0,3, Sort.by(Sort.Direction.DESC,"username"));
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
 
 
         // 쿼리 메서드용 SQL문 1번, totalCount용 SQL문 1번 : 총 2번의 쿼리문 날림
@@ -371,14 +379,15 @@ class MemberReposiotryTest {
     }
 
 
-    @Test@Transactional
-    public void bulkUpdate(){
+    @Test
+    @Transactional
+    public void bulkUpdate() {
 
-        repository.save(new Member("member1",10));
-        repository.save(new Member("member2",19));
-        repository.save(new Member("member3",20));
-        repository.save(new Member("member4",21));
-        repository.save(new Member("member5",40));
+        repository.save(new Member("member1", 10));
+        repository.save(new Member("member2", 19));
+        repository.save(new Member("member3", 20));
+        repository.save(new Member("member4", 21));
+        repository.save(new Member("member5", 40));
 
 
         int updated_row = repository.bulkAgePlus(20);// 20살 이상인 사람의 나이를 +1만큼 증가!
@@ -398,7 +407,8 @@ class MemberReposiotryTest {
 
     }
 
-    @Test@Transactional
+    @Test
+    @Transactional
     public void findMemberLazy() throws Exception {
 
 
@@ -427,8 +437,9 @@ class MemberReposiotryTest {
     }
 
 
-    @Test@Transactional
-    public void queryHint(){
+    @Test
+    @Transactional
+    public void queryHint() {
 
         // hint 적용 전
 
@@ -461,8 +472,9 @@ class MemberReposiotryTest {
     }
 
 
-    @Test@Transactional
-    public void queryLock(){
+    @Test
+    @Transactional
+    public void queryLock() {
 
         Member member = repository.save(new Member("member1", 10));
         entityManager.flush();
@@ -472,15 +484,17 @@ class MemberReposiotryTest {
 
     }
 
-    @Test@Transactional
-    public void callCustom(){
+    @Test
+    @Transactional
+    public void callCustom() {
 
         List<Member> memberCustom = repository.findMemberCustom();
 
     }
 
-    @Test@Transactional
-    public void queryByExample(){ // [Query by Example]
+    @Test
+    @Transactional
+    public void queryByExample() { // [Query by Example]
 
         Team teamA = new Team("teamA");
         entityManager.persist(teamA);
@@ -493,7 +507,7 @@ class MemberReposiotryTest {
         entityManager.flush();
         entityManager.clear();
 
-     // 사용 예시 1
+        // 사용 예시 1
 
         /*
         // 만약 ,"m1"인 객체를 찾고 싶다면? 보통의 경우, findByUsername("m1")으로 찾는다.
@@ -531,7 +545,7 @@ class MemberReposiotryTest {
         ExampleMatcher matcher = ExampleMatcher.matching()
                 .withIgnorePaths("age");
 
-        Example<Member> example = Example.of(member,matcher);
+        Example<Member> example = Example.of(member, matcher);
 
         List<Member> result = repository.findAll(example);
 
@@ -539,8 +553,9 @@ class MemberReposiotryTest {
 
     }
 
-    @Test@Transactional
-    public void projections(){
+    @Test
+    @Transactional
+    public void projections() {
 
         Team teamA = new Team("teamA");
         entityManager.persist(teamA);
@@ -557,7 +572,53 @@ class MemberReposiotryTest {
         for (NestedClosedProjections nestedClosedProjections : result) {
             System.out.println("nestedClosedProjections = " + nestedClosedProjections);
         }
+    }
 
+
+    @Test
+    @Transactional
+    public void nativeQuery() {
+
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        Member findMember = repository.findByNativeQuery("m1");
+        System.out.println("findMember = " + findMember);
+
+
+    }
+
+    @Test
+    @Transactional
+    public void nativeQueryWithSpringDataInterfaceProjection() {
+
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+        // 10개씩 묶어서 페이징을 하고, 그 중 첫번째 PAGE만 들고 와라~~!!
+        Page<MemberProjection> result = repository.findByNativeProjection(PageRequest.of(0, 10));// Spring Data JPA와 순수 SQL의 PAGE는 [0]부터 시작!
+                                                                                                            //JPA는 PAGE [1]부터 시작!
+
+        List<MemberProjection> content = result.getContent();
+        for (MemberProjection memberProjection : content) {
+            System.out.println("memberProjection = " + memberProjection.getUsername());
+            System.out.println("memberProjection = " + memberProjection.getTeamName());
+        }
 
     }
 
